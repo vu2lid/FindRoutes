@@ -15,6 +15,7 @@ public class Mbta implements Network {
     public static final String MBTA_API_SEARCH_PATH_ROUTES = "mbta.api.search.path.routes";
     public static final String MBTA_API_SEARCH_PATH_ROUTE_PATTERNS_STOPS = "mbta.api.search.path.route_patterns.stops";
 
+    private TreeMap<String, String> routesMap = null;
     private TreeMap<String, ArrayList<String>> stopNameToStopIds = null;
     private TreeMap<String, TreeMap<String, ArrayList<String>>> connectionStops = null;
     public Mbta() {
@@ -40,7 +41,7 @@ public class Mbta implements Network {
     @Override
     public void printRouteLongNames() {
         try {
-            var routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
+            if(routesMap == null) routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
             System.out.println(routesMap.values().stream().collect(Collectors.joining(", ")));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -56,7 +57,7 @@ public class Mbta implements Network {
     public Collection<String> getRouteIds() {
         Collection<String> routeIds = null;
         try {
-            var routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
+            if(routesMap == null) routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
             routeIds = routesMap.keySet();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -182,10 +183,10 @@ public class Mbta implements Network {
     }
 
     private TreeMap<String, String> collectRouteLongNames(String requestUrl) throws IOException {
-        TreeMap<String, String> routesMap = null;
+        TreeMap<String, String> routeIdToLongNameMap = null;
         JSONObject jsonObj = getResponseJSON(requestUrl);
         if (jsonObj != null) {
-            routesMap = new TreeMap<>();
+            routeIdToLongNameMap = new TreeMap<>();
             JSONArray searchResult = new JSONArray();
             jsonObj.toJSONArray(searchResult);
             JSONArray jsonArray = jsonObj.getJSONArray("data");
@@ -194,9 +195,9 @@ public class Mbta implements Network {
                 JSONObject attributes = json.getJSONObject("attributes");
                 String long_name = attributes.getString("long_name");
                 String id = json.getString("id");
-                routesMap.put(id, long_name);
+                routeIdToLongNameMap.put(id, long_name);
             }
         }
-        return routesMap;
+        return routeIdToLongNameMap;
     }
 }

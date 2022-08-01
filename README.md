@@ -19,7 +19,9 @@ easily, some tests.
 
 ## Design notes
 ### Question 1
-notes for 1
+Chose to rely on the API to filter the results since API will have access to the up-to-date backend data. This will also reduce 
+use of other system resources, since we will be downloading and processing the minimum required data for the purpose. ``routeMap``
+saves the mapping between route id and long name of the route;
 ### Question 2
 notes for 2
 ### Question 3
