@@ -28,7 +28,13 @@ to collect stops connected to a specific route (based on documentation and searc
 ``connectionStops`` will have the collected stops and route names data.
 ### Question 3
 All possible routes between two stops is found using saved ``stopNameToStopIds`` and ``connectionStops``.
-
+### General notes
+Apache ``httpclient`` library was selected, since it seems to be widely used and documented and open source. 
+Due to similar reasons ``json`` library was used. It was decided to use extract the required data by traversing
+the returned JSON structure
+### Things that can be changed
+Add class models corresponding to the JSON schema used. Add more unit and integration tests. Refactor the code to
+extract more code which is not dependent on a specific network. 
 ## Getting Started
 
 The following instructions will get you a copy of the project up and running on your local machine.
