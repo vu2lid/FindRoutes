@@ -20,12 +20,14 @@ easily, some tests.
 ## Design notes
 ### Question 1
 Chose to rely on the API to filter the results since API will have access to the up-to-date backend data. This will also reduce 
-use of other system resources, since we will be downloading and processing the minimum required data for the purpose. ``routeMap``
-saves the mapping between route id and long name of the route;
+use of other system resources, since we will be downloading and process the minimum required data for the purpose. ``routeMap``
+saves the mapping between route id and long name of the route.
 ### Question 2
-notes for 2
+*Caution: a specific API endpoint (mbta.api.search.path.route_patterns.stops in the properties file) using route_patterns was used 
+to collect stops connected to a specific route (based on documentation and search). This may not be the correct approach.* 
+``connectionStops`` will have the collected stops and route names data.
 ### Question 3
-notes for 3
+All possible routes between two stops is found using saved ``stopNameToStopIds`` and ``connectionStops``.
 
 ## Getting Started
 
