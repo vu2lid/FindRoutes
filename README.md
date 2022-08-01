@@ -1,7 +1,7 @@
 # FindRoutes
 Analyze and find routing related answers related to a transportation network
 
-This tries to answer the following three questions (please see 'Running' below):
+This tries to answer the following three questions (Please see 'Running' below. Check console for output.):
 1. print data representing all, "subway" routes - using option 2 - API to filter results
 2. print the stops related details for routes (route with maximum, minimum stops, connection stops)
 3. print possible routes for traveling between two stops
@@ -10,6 +10,19 @@ Please check the references and MBTA API Swagger documentation at:
 ```
 https://api-v3.mbta.com/docs/swagger/index.html
 ```
+
+## Goal
+
+The overall goal was to find answers to the above questions within the available time. Additional considerations were
+reusable code, possibility to expand refactor easily, ease of configuring various network dependent parameters, some tests.
+
+## Design notes
+### Question 1
+notes for 1
+### Question 2
+notes for 2
+### Question 3
+notes for 3
 
 ## Getting Started
 
