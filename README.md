@@ -19,7 +19,9 @@ The following instructions will get you a copy of the project up and running on 
 
 The project was tested/developed using:
 ```
-Java 17, org.apache.httpcomponents.httpclient library, org.json.json library and others. Please check pom.xml. 
+Java 17, 
+org.apache.httpcomponents.httpclient library, 
+org.json.json library and others. Please check pom.xml. 
 ``` 
 ### Installing
 
