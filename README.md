@@ -34,7 +34,9 @@ git clone https://github.com/vu2lid/FindRoutes.git
 
 Run the app by:
 ```
-Run main.java after building and all the Maven dependencies are satisfied. Check comments in main.java. Check console for output. Changing start and end stops for Question 3 can be done in main.java. If there is an API key, configure it in applications.properties. Various endpoints accessed are specified in application.properties. 
+Run main.java after building and all the Maven dependencies are satisfied. 
+Check comments in main.java. Check console for output. Changing start and end stops for Question 3 can be done in main.java. 
+If there is an API key, configure it in applications.properties. Various endpoints accessed are specified in application.properties. 
 ```
 
 ## References
