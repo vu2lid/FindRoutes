@@ -27,14 +27,18 @@ saves the mapping between route id and long name of the route.
 to collect stops connected to a specific route (based on documentation and search). This may not be the correct approach.* 
 ``connectionStops`` will have the collected stops and route names data.
 ### Question 3
-All possible routes between two stops is found using saved ``stopNameToStopIds`` and ``connectionStops``.
+All possible routes between two stops are found using saved ``stopNameToStopIds`` and ``connectionStops``.
 ### General notes
 Apache ``httpclient`` library was selected, since it seems to be widely used and documented and open source. 
 Due to similar reasons ``json`` library was used. It was decided to use extract the required data by traversing
-the returned JSON structure
+the returned JSON structure (since it was faster to implement). This code which is network dependant 
+(in this case dependent on MBTA response JSON).
+is included in two private functions.
 ### Things that can be changed
 Add class models corresponding to the JSON schema used. Add more unit and integration tests. Refactor the code to
-extract more code which is not dependent on a specific network. 
+extract more code which is not dependent on a specific network (most of the public methods are not network specific).
+Refactor code to avoid/reduce API requests and cache data locally (it looks like it is possible to request only the
+new/changed data).
 ## Getting Started
 
 The following instructions will get you a copy of the project up and running on your local machine.
