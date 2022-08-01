@@ -18,6 +18,7 @@ public class Mbta implements Network {
     private TreeMap<String, String> routesMap = null;
     private TreeMap<String, ArrayList<String>> stopNameToStopIds = null;
     private TreeMap<String, TreeMap<String, ArrayList<String>>> connectionStops = null;
+
     public Mbta() {
     }
 
@@ -43,7 +44,8 @@ public class Mbta implements Network {
         // Using the response to teh API request filter the routes compile a map between
         // route ids and route long names.
         try {
-            if(routesMap == null) routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
+            if (routesMap == null)
+                routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
             System.out.println(routesMap.values().stream().collect(Collectors.joining(", ")));
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -59,7 +61,8 @@ public class Mbta implements Network {
     public Collection<String> getRouteIds() {
         Collection<String> routeIds = null;
         try {
-            if(routesMap == null) routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
+            if (routesMap == null)
+                routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
             routeIds = routesMap.keySet();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -68,7 +71,7 @@ public class Mbta implements Network {
     }
 
     /**
-     * Prints route stops
+     * Prints routes connected to stops. Routes with maximum stops. Routes with minimum stops.
      */
     @Override
     public void printRouteStops() {
@@ -135,37 +138,47 @@ public class Mbta implements Network {
 
     /**
      * Given two stops prints possible routes connecting those two stops
+     *
+     * @param stopOne
+     * @param stopTwo
      */
     @Override
     public void printStopsToRoute(String stopOne, String stopTwo) {
         // find the stopIds corresponding to stopOne and stopTwo stopNames - from stopNameToStopIds
         // find the route names of these stops - from connectionStops
         // if these route names intersect - if these are route names common to both - list those route names
-        if(stopNameToStopIds.containsKey(stopOne) && stopNameToStopIds.containsKey(stopTwo)) {
+        if (stopNameToStopIds.containsKey(stopOne) && stopNameToStopIds.containsKey(stopTwo)) {
             var stopIdsStopOne = stopNameToStopIds.get(stopOne);
             var stopIdsStopTwo = stopNameToStopIds.get(stopTwo);
             // see if there are possible connections through connecting stops in routes
             // if the two lists have common elements there is a route between the two stops
             Set<String> stopOneRoutesSet = new LinkedHashSet<>();
-            for(String stopId: stopIdsStopOne) {
+            for (String stopId : stopIdsStopOne) {
                 stopOneRoutesSet.addAll(connectionStops.get(stopId).get(stopOne));
             }
             Set<String> stopTwoRoutesSet = new LinkedHashSet<>();
-            for(String stopId: stopIdsStopTwo) {
+            for (String stopId : stopIdsStopTwo) {
                 stopTwoRoutesSet.addAll(connectionStops.get(stopId).get(stopTwo));
             }
             Set<String> combinedSet = new LinkedHashSet<>(stopOneRoutesSet);
             combinedSet.addAll(stopTwoRoutesSet);
-            if((stopOneRoutesSet.size() + stopTwoRoutesSet.size()) > combinedSet.size()) {
-                System.out.println("Possible routes connecting stops '"+stopOne+"' and '"+stopTwo+"' are "+combinedSet);
-            }else {
-                System.out.println("There are no routes connecting stops '"+stopOne+"' and '"+stopTwo);
+            if ((stopOneRoutesSet.size() + stopTwoRoutesSet.size()) > combinedSet.size()) {
+                System.out.println("Possible routes connecting stops '" + stopOne + "' and '" + stopTwo + "' are " + combinedSet);
+            } else {
+                System.out.println("There are no routes connecting stops '" + stopOne + "' and '" + stopTwo);
             }
-        }else{
-            System.out.println("Unable to find the stops "+stopOne+" and "+stopTwo);
+        } else {
+            System.out.println("Unable to find the stops " + stopOne + " and " + stopTwo);
         }
     }
 
+    /**
+     * Collects data related to a specific route - stops ids in the route stop names and route id.
+     *
+     * @param requestUrl
+     * @return Returns a map containing data about stops, stop names and connected route ids.
+     * @throws IOException
+     */
     private TreeMap<String, TreeMap<String, String>> collectRouteStops(String requestUrl) throws IOException {
         JSONObject jsonObj = getResponseJSON(requestUrl);
         TreeMap<String, TreeMap<String, String>> stopsMap = null;
@@ -182,8 +195,8 @@ public class Mbta implements Network {
                     String id = json.getString("id");
                     stopsMap.get(routeId).put(id, name);
                     // collect a map of stop names to possible stopIds
-                    if(stopNameToStopIds == null) stopNameToStopIds = new TreeMap<>();
-                    if(stopNameToStopIds.get(name) == null) stopNameToStopIds.put(name, new ArrayList<>());
+                    if (stopNameToStopIds == null) stopNameToStopIds = new TreeMap<>();
+                    if (stopNameToStopIds.get(name) == null) stopNameToStopIds.put(name, new ArrayList<>());
                     stopNameToStopIds.get(name).add(id);
                 }
             }
@@ -192,6 +205,13 @@ public class Mbta implements Network {
         return stopsMap;
     }
 
+    /**
+     * Collects route long names and route ids.
+     *
+     * @param requestUrl
+     * @return Returns a map containing route ids and route long names.
+     * @throws IOException
+     */
     private TreeMap<String, String> collectRouteLongNames(String requestUrl) throws IOException {
         TreeMap<String, String> routeIdToLongNameMap = null;
         JSONObject jsonObj = getResponseJSON(requestUrl);
