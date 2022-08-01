@@ -40,6 +40,8 @@ public class Mbta implements Network {
      */
     @Override
     public void printRouteLongNames() {
+        // Using the response to teh API request filter the routes compile a map between
+        // route ids and route long names.
         try {
             if(routesMap == null) routesMap = collectRouteLongNames(getApiUrl(getProperty(MBTA_API_SEARCH_PATH_ROUTES)));
             System.out.println(routesMap.values().stream().collect(Collectors.joining(", ")));
@@ -70,6 +72,14 @@ public class Mbta implements Network {
      */
     @Override
     public void printRouteStops() {
+        // Go through the route ids and get response containing stops for that route id.
+        // Collect all the stops for that route along with the stop id and stop name
+        // also create a map of stop names to stop ids (same stop name can have more
+        // than one stop id.
+        // Add the data to connectionStops to collect route names connected to a stop.
+        // Keep track of the route with maximum number of stops and minimum number of
+        // stops using the above.
+        // The above is also used to get a list of routes connected to a specific stop.
         connectionStops = new TreeMap<>();
         int maxStops = 0;
         String maxStopsRouteId = null;
