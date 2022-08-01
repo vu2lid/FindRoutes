@@ -33,7 +33,7 @@ Apache ``httpclient`` library was selected, since it seems to be widely used and
 Due to similar reasons ``json`` library was used. It was decided to use extract the required data by traversing
 the returned JSON structure (since it was faster to implement). This code which is network dependant 
 (in this case dependent on MBTA response JSON).
-is included in two private functions.
+is included in two private methods.
 ### Things that can be changed
 Add class models corresponding to the JSON schema used. Add more unit and integration tests. Refactor the code to
 extract more code which is not dependent on a specific network (most of the public methods are not network specific).
