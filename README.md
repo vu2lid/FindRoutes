@@ -35,6 +35,7 @@ the returned JSON structure (since it was faster to implement). This code which 
 (in this case dependent on MBTA response JSON).
 is included in two private methods.
 ### Things that can be changed
+There is practically no checking for errors or code to handle bad responses. More error handling can be added.
 Add class models corresponding to the JSON schema used. Add more unit and integration tests. Refactor the code to
 extract more code which is not dependent on a specific network (most of the public methods are not network specific).
 Refactor code to avoid/reduce API requests and cache data locally (it looks like it is possible to request only the
