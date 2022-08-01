@@ -14,7 +14,8 @@ https://api-v3.mbta.com/docs/swagger/index.html
 ## Goal
 
 The overall goal was to find answers to the above questions within the available time. Additional considerations were
-reusable code, possibility to expand refactor easily, ease of configuring various network dependent parameters, some tests.
+reusable code, possibility to expand and refactor easily, ease of configuring various network dependent parameters, adding more networks
+easily, some tests.
 
 ## Design notes
 ### Question 1
