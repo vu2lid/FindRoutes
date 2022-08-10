@@ -18,6 +18,8 @@ public class Mbta implements Network {
     private TreeMap<String, String> routesMap = null;
     private TreeMap<String, ArrayList<String>> stopNameToStopIds = null;
     private TreeMap<String, TreeMap<String, ArrayList<String>>> connectionStops = null;
+    private TreeMap<String, ArrayList<String>> stopNameToRouteIds = null;
+    private RouteGraph routeGraph = null;
 
     public Mbta() {
     }
@@ -92,7 +94,7 @@ public class Mbta implements Network {
         for (String routeId : routeIds) {
             String requestUrl = getApiUrl(String.format(getProperty(MBTA_API_SEARCH_PATH_ROUTE_PATTERNS_STOPS), routeId));
             try {
-                var stopsMap = collectRouteStops(requestUrl);
+                var stopsMap = collectRouteStops(requestUrl, routeId);
                 if (minStopsRouteId == null && maxStopsRouteId == null) {
                     minStops = stopsMap.get(routeId).values().size();
                     minStopsRouteId = routeId;
@@ -128,9 +130,17 @@ public class Mbta implements Network {
         System.out.println("Route with minimum number of " + minStops + " stops is " + minStopsRouteId);
         for (String stopId : connectionStops.keySet()) {
             for (String stopName : connectionStops.get(stopId).keySet()) {
+                if (stopNameToRouteIds == null) stopNameToRouteIds = new TreeMap<>();
+                stopNameToRouteIds.put(stopName, connectionStops.get(stopId).get(stopName));
                 if (connectionStops.get(stopId).get(stopName).size() > 1) {
                     var connectingRoutes = connectionStops.get(stopId).get(stopName).stream().collect(Collectors.joining(", "));
-                    System.out.println("The stop with the stop name'" + stopName + "' and stopId " + stopId + " connects the following routes: " + connectingRoutes);
+                    System.out.println("The stop with the stop name' " + stopName + "' and stopId " + stopId + " connects the following routes: " + connectingRoutes);
+                    // add all possible route connections to the routerGraph - this may not the most efficient way to collect this information
+                    for (String startRouteId : connectionStops.get(stopId).get(stopName)) {
+                        for (String endRouteId : connectionStops.get(stopId).get(stopName)) {
+                            if (!startRouteId.equals(endRouteId)) routeGraph.addConnection(startRouteId, endRouteId);
+                        }
+                    }
                 }
             }
         }
@@ -144,26 +154,17 @@ public class Mbta implements Network {
      */
     @Override
     public void printStopsToRoute(String stopOne, String stopTwo) {
-        // find the stopIds corresponding to stopOne and stopTwo stopNames - from stopNameToStopIds
-        // find the route names of these stops - from connectionStops
-        // if these route names intersect - if these are route names common to both - list those route names
-        if (stopNameToStopIds.containsKey(stopOne) && stopNameToStopIds.containsKey(stopTwo)) {
-            var stopIdsStopOne = stopNameToStopIds.get(stopOne);
-            var stopIdsStopTwo = stopNameToStopIds.get(stopTwo);
+        // Find a set of connection routes by traversing the routeGraph from stopOne to stopTwo
+        if (stopNameToRouteIds.containsKey(stopOne) && stopNameToRouteIds.containsKey(stopTwo)) {
+            var routeIdsStopOne = stopNameToRouteIds.get(stopOne);
+            var routeIdsStopTwo = stopNameToRouteIds.get(stopTwo);
             // see if there are possible connections through connecting stops in routes
             // if the two lists have common elements there is a route between the two stops
-            Set<String> stopOneRoutesSet = new LinkedHashSet<>();
-            for (String stopId : stopIdsStopOne) {
-                stopOneRoutesSet.addAll(connectionStops.get(stopId).get(stopOne));
-            }
-            Set<String> stopTwoRoutesSet = new LinkedHashSet<>();
-            for (String stopId : stopIdsStopTwo) {
-                stopTwoRoutesSet.addAll(connectionStops.get(stopId).get(stopTwo));
-            }
-            Set<String> combinedSet = new LinkedHashSet<>(stopOneRoutesSet);
-            combinedSet.addAll(stopTwoRoutesSet);
-            if ((stopOneRoutesSet.size() + stopTwoRoutesSet.size()) > combinedSet.size()) {
-                System.out.println("Possible routes connecting stops '" + stopOne + "' and '" + stopTwo + "' are " + combinedSet);
+            Set<String> routeSet = new TreeSet<>();
+            // We just want any route connecting the stops, so we just take the first element from each
+            routeGraph.findRoute(routeIdsStopOne.get(0), routeIdsStopTwo.get(0), routeSet);
+            if (routeSet.size() > 0) {
+                System.out.println("A possible (not the most efficient) route connecting stops '" + stopOne + "' and '" + stopTwo + "' is " + routeSet);
             } else {
                 System.out.println("There are no routes connecting stops '" + stopOne + "' and '" + stopTwo);
             }
@@ -179,14 +180,13 @@ public class Mbta implements Network {
      * @return Returns a map containing data about stops, stop names and connected route ids.
      * @throws IOException
      */
-    private TreeMap<String, TreeMap<String, String>> collectRouteStops(String requestUrl) throws IOException {
+    private TreeMap<String, TreeMap<String, String>> collectRouteStops(String requestUrl, String routeId) throws IOException {
         JSONObject jsonObj = getResponseJSON(requestUrl);
         TreeMap<String, TreeMap<String, String>> stopsMap = null;
         if (jsonObj != null) {
             stopsMap = new TreeMap<>();
-            String routeId = jsonObj.getJSONObject("data").getString("id");
             if (stopsMap.get(routeId) == null) stopsMap.put(routeId, new TreeMap<>());
-            JSONArray jsonArray = jsonObj.getJSONArray("included");
+            JSONArray jsonArray = jsonObj.getJSONArray("data");
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject json = jsonArray.getJSONObject(i);
                 if (json.getString("type").equalsIgnoreCase("stop")) {
@@ -200,7 +200,6 @@ public class Mbta implements Network {
                     stopNameToStopIds.get(name).add(id);
                 }
             }
-            //System.out.println(stopsMap);
         }
         return stopsMap;
     }
@@ -216,6 +215,7 @@ public class Mbta implements Network {
         TreeMap<String, String> routeIdToLongNameMap = null;
         JSONObject jsonObj = getResponseJSON(requestUrl);
         if (jsonObj != null) {
+            if (routeGraph == null) routeGraph = new RouteGraph();
             routeIdToLongNameMap = new TreeMap<>();
             JSONArray searchResult = new JSONArray();
             jsonObj.toJSONArray(searchResult);
@@ -225,6 +225,7 @@ public class Mbta implements Network {
                 JSONObject attributes = json.getJSONObject("attributes");
                 String long_name = attributes.getString("long_name");
                 String id = json.getString("id");
+                routeGraph.addRoute(id);
                 routeIdToLongNameMap.put(id, long_name);
             }
         }

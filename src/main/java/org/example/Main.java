@@ -21,8 +21,10 @@ public class Main {
 
         // 3) print possible routes for traveling between two stops
         System.out.println("================================================= Question 3 ==");
-        String stopOne = "North Station";
-        String stopTwo = "Union Square";
+        //String stopOne = "North Station";
+        //String stopTwo = "Union Square";
+        String stopOne = "Alewife";
+        String stopTwo = "Maverick";
         network.printStopsToRoute(stopOne, stopTwo);
     }
 }
