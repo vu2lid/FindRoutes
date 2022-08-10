@@ -23,11 +23,10 @@ Chose to rely on the API to filter the results since API will have access to the
 use of other system resources, since we will be downloading and process the minimum required data for the purpose. ``routeMap``
 saves the mapping between route id and long name of the route.
 ### Question 2
-*Caution: a specific API endpoint (mbta.api.search.path.route_patterns.stops in the properties file) using route_patterns was used 
-to collect stops connected to a specific route (based on documentation and search). This may not be the correct approach.* 
 ``connectionStops`` will have the collected stops and route names data.
+``routeGraph`` will have the Graph containing route connections
 ### Question 3
-All possible routes between two stops are found using saved ``stopNameToStopIds`` and ``connectionStops``.
+All possible routes between two stops are found using saved ``stopNameToStopIds``, ``routeGraph`` and ``connectionStops``.
 ### General notes
 Apache ``httpclient`` library was selected, since it seems to be widely used and documented and open source. 
 Due to similar reasons ``json`` library was used. It was decided to use extract the required data by traversing
