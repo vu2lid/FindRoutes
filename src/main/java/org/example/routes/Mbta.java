@@ -134,7 +134,7 @@ public class Mbta implements Network {
                 stopNameToRouteIds.put(stopName, connectionStops.get(stopId).get(stopName));
                 if (connectionStops.get(stopId).get(stopName).size() > 1) {
                     var connectingRoutes = connectionStops.get(stopId).get(stopName).stream().collect(Collectors.joining(", "));
-                    System.out.println("The stop with the stop name' " + stopName + "' and stopId " + stopId + " connects the following routes: " + connectingRoutes);
+                    System.out.println("The stop with the stop name '" + stopName + "' and stopId '" + stopId + "' connects the following routes: " + connectingRoutes);
                     // add all possible route connections to the routerGraph - this may not the most efficient way to collect this information
                     for (String startRouteId : connectionStops.get(stopId).get(stopName)) {
                         for (String endRouteId : connectionStops.get(stopId).get(stopName)) {
